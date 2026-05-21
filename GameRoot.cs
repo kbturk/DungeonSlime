@@ -2,113 +2,78 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonogameLibrary;
+using MonogameLibrary.Graphics;
+using System;
 
 namespace DungeonSlime;
 
-public class GameRoot: Core
+public class GameRoot : Core
 {
-    private Texture2D _logo;
-    private float LogoFade = 1;
-    private float WordFade = 0;
-    private int millsecondsPerFrame = 70;
-    private int timeSinceLastFrame = 0;
+    // defines the slime animated sprite
+    private AnimatedSprite _slime;
 
-    public GameRoot(): base("Dungeon Slime", 1280, 720, false)
+    // defines the bat animated sprite
+    private AnimatedSprite _bat;
+
+    public GameRoot() : base("Dungeon Slime", 1280, 720, false)
     {
 
     }
 
     protected override void Initialize()
     {
+        // TODO: Add your initialization logic here
 
         base.Initialize();
     }
 
     protected override void LoadContent()
     {
+        // Create the texture atlas from the XML configuration file
+        TextureAtlas atlas = TextureAtlas.FromFile(Content, "images\\atlas-definition.xml");
 
-        _logo = Content.Load<Texture2D>("images/logo");
+        // Create the slime animated sprite from the atlas.
+        _slime = atlas.CreateAnimatedSprite("slime-animation");
+        _slime.Scale = new Vector2(4.0f, 4.0f);
+        _slime.Color = Color.Green;
 
-        //base.LoadContent();
-    }
-
-    private float FadeOut(GameTime gameTime, float fade)
-    {
-        timeSinceLastFrame +=(int)gameTime.ElapsedGameTime.Milliseconds;
-        if (timeSinceLastFrame > millsecondsPerFrame) {
-            if (fade > 0.0f)
-            fade -= 0.05f;
-            else fade = 0.0f;
-            timeSinceLastFrame = 0;
-        }
-        return fade;
-    }
-
-
-    private float FadeIn(GameTime gameTime, float fade)
-    {
-        timeSinceLastFrame +=(int)gameTime.ElapsedGameTime.Milliseconds;
-        if (timeSinceLastFrame > millsecondsPerFrame) {
-            if (fade < 1.0f)
-            fade += 0.05f;
-            else fade = 1.0f;
-            timeSinceLastFrame = 0;
-        }
-        return fade;
+        // Create the bat region from the atlas.
+        _bat = atlas.CreateAnimatedSprite("bat-animation");
+        _bat.Scale = new Vector2(4.0f, 4.0f);
     }
 
     protected override void Update(GameTime gameTime)
     {
         if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
             Exit();
-        if (LogoFade > 0.0f)
-            LogoFade = FadeOut(gameTime, LogoFade);
-        if (WordFade < 1.0f)
-            WordFade = FadeIn(gameTime, WordFade);
+
+        //update the slime animated sprite:
+        _slime.Update(gameTime);
+
+        //update the bat animated sprite:
+        _bat.Update(gameTime);
 
         base.Update(gameTime);
     }
 
     protected override void Draw(GameTime gameTime)
     {
-        GraphicsDevice.Clear(Color.Black);
+        // Clear the back buffer.
+        GraphicsDevice.Clear(Color.CornflowerBlue);
 
-        Rectangle iconSourceRect = new Rectangle(0, 0, 128, 128);
-        Rectangle wordmarkSourceRect = new Rectangle(150, 34, 458, 58);
+        // Begin the sprite batch to prepare for rendering.
+        SpriteBatch.Begin(samplerState: SamplerState.PointClamp);
 
-        SpriteBatch.Begin(sortMode: SpriteSortMode.FrontToBack);
+        // Draw the slime texture region at a scale of 4.0
+        _slime.Draw(SpriteBatch, Vector2.Zero);
 
-        //Draw only the icon portion
-        SpriteBatch.Draw(
-                _logo,                   //texture
-                base.Middle(),           //position
-                iconSourceRect,          //source rectangle
-                Color.White * LogoFade,  //color
-                0.0f,                    //rotation
-                new Vector2(             //origin
-                    iconSourceRect.Width,
-                    iconSourceRect.Height)*0.5f,
-                1.5f,                    //scale
-                SpriteEffects.None,      //effects
-                1.0f                     //layerdepth
-                    );
+        // Draw the bat texture region 10px to the right of the slime at a scale of 4.0
+        _bat.Draw(SpriteBatch, new Vector2(_slime.Width + 10, 0));
 
-        //Draw only the word
-        SpriteBatch.Draw(
-                _logo,                    //texture
-                base.Middle(),            //position
-                wordmarkSourceRect,       //source rectangle
-                Color.White * WordFade,   //color
-                0.0f,                     //rotation
-                new Vector2(              //origin
-                    wordmarkSourceRect.Width,
-                    wordmarkSourceRect.Height)*0.5f,
-                1.5f,                     //scale
-                SpriteEffects.None,       //effects
-                0.0f                      //layerdepth
-                    );
+        // Always end the sprite batch when finished.
         SpriteBatch.End();
 
         base.Draw(gameTime);
     }
 }
+
