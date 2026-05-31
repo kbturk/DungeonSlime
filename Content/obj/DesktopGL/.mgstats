@@ -1,0 +1,4 @@
+Source File,Dest File,Processor Type,Content Type,Source File Size,Dest File Size,Build Seconds
+"C:/Users/Katherine/OneDrive - terminus data science, LLC/dotnet/DungeonSlime/Content/images/atlas-definition.xml","C:\Users\Katherine\OneDrive - terminus data science, LLC\dotnet\DungeonSlime\Content\bin\DesktopGL\images/atlas-definition.xml","CopyItem","File",144,144,0.0010899
+"C:/Users/Katherine/OneDrive - terminus data science, LLC/dotnet/DungeonSlime/Content/images/atlas.png","C:/Users/Katherine/OneDrive - terminus data science, LLC/dotnet/DungeonSlime/Content/bin/DesktopGL/images/atlas.xnb","TextureProcessor","Texture2DContent",590,16469,0.1171441
+"C:/Users/Katherine/OneDrive - terminus data science, LLC/dotnet/DungeonSlime/Content/images/logo.png","C:/Users/Katherine/OneDrive - terminus data science, LLC/dotnet/DungeonSlime/Content/bin/DesktopGL/images/logo.xnb","TextureProcessor","Texture2DContent",16734,311381,0.0161638
