@@ -7,10 +7,12 @@
     <File>C:/Users/Katherine/OneDrive - terminus data science, LLC/dotnet/DungeonSlime/Content/audio/bounce.wav</File>
     <File>C:/Users/Katherine/OneDrive - terminus data science, LLC/dotnet/DungeonSlime/Content/audio/collect.wav</File>
     <File>C:/Users/Katherine/OneDrive - terminus data science, LLC/dotnet/DungeonSlime/Content/audio/theme.ogg</File>
+    <File>C:/Users/Katherine/OneDrive - terminus data science, LLC/dotnet/DungeonSlime/Content/fonts/04B_30.spritefont</File>
     <File>C:/Users/Katherine/OneDrive - terminus data science, LLC/dotnet/DungeonSlime/Content/images/atlas.png</File>
     <File>C:/Users/Katherine/OneDrive - terminus data science, LLC/dotnet/DungeonSlime/Content/images/logo.png</File>
   </SourceFiles>
   <DestFiles>
+    <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />

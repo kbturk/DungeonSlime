@@ -45,6 +45,18 @@ public class GameRoot : Core
     // the background theme song
     private Song _themeSong;
 
+    // The SpriteFont Description used to draw text.
+    private SpriteFont _font;
+
+    // Tracks the players score.
+    private int _score;
+
+    // Defines the position to draw the score text at
+    private Vector2 _scoreTextPosition;
+
+    // Defines the origin used when drawing the score text.
+    private Vector2 _scoreTextOrigin;
+
     public GameRoot() : base("Dungeon Slime", 1280, 720, false)
     {
 
@@ -78,6 +90,14 @@ public class GameRoot : Core
 
         //Start playing thebackground music.
         Audio.PlaySong(_themeSong);
+
+        // Set the position of the score text to align to the left edge of the
+        // room bounds, and to vertically be at the center of the first tile.
+        _scoreTextPosition = new Vector2(_roomBounds.Left, _tilemap.TileHeight * 0.5f);
+
+        // Set the origin of the text so it is left-centered.
+        float scoreTextYOrigin = _font.MeasureString("Score").Y * 0.5f;
+        _scoreTextOrigin = new Vector2(0, scoreTextYOrigin);
     }
 
     protected override void LoadContent()
@@ -104,6 +124,9 @@ public class GameRoot : Core
 
         // load the background music
         _themeSong = Content.Load<Song>("audio/theme");
+
+        // Load the font
+        _font = Content.Load<SpriteFont>("fonts/04B_30");
 
         // Ensure media player is not already plaing on device if so, stop it.
         if (MediaPlayer.State == MediaState.Playing)
@@ -203,7 +226,7 @@ public class GameRoot : Core
             _batVelocity = Vector2.Reflect(_batVelocity, normal);
 
             // Play the bounce sound effect
-            Audio.PlaySoundEffect(_bounceSoundEffect);
+            Audio.PlaySoundEffect(_bounceSoundEffect, 0.2f, 0.0f, 0.0f, false);
         }
 
         _batPosition = newBatPosition;
@@ -221,7 +244,10 @@ public class GameRoot : Core
             // Assign a new random velocity to the bat
             AssignRandomBatVelocity();
 
-            Audio.PlaySoundEffect(_collectSoundEffect);
+            Audio.PlaySoundEffect(_collectSoundEffect, 0.2f, 0.0f, 0.0f, false);
+
+            // Increase the player's score:
+            _score += 100;
         }
 
         base.Update(gameTime);
@@ -345,6 +371,19 @@ public class GameRoot : Core
 
         // Draw the bat texture region 10px to the right of the slime at a scale of 4.0
         _bat.Draw(SpriteBatch, _batPosition);
+
+        // Draw the score
+        SpriteBatch.DrawString(
+                _font,
+                $"Score: {_score}",
+                _scoreTextPosition,
+                Color.White,
+                0.0f,
+                _scoreTextOrigin,
+                1.0f,
+                SpriteEffects.None,
+                0.0f
+                );
 
         // Always end the sprite batch when finished.
         SpriteBatch.End();
