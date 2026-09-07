@@ -1,8 +1,15 @@
 using System;
+using DungeonSlime.UI;
+using Gum.DataTypes;
+using Gum.Wireframe;
+using Gum.Managers;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using MonoGameGum;
+using Gum.Forms.Controls;
+using MonoGameGum.GueDeriving;
 using MonogameLibrary;
 using MonogameLibrary.Graphics;
 using MonogameLibrary.Input;
@@ -54,6 +61,22 @@ public class GameScene : Scene
     // Defines the origin used when drawing the score text.
     private Vector2 _scoreTextOrigin;
 
+    //Gum fields:
+    // A reference to the pause panel UI element so we can set its visability
+    // when the game is paused.
+    private Panel _pausePanel;
+
+    // A reference to the resume button UI element so we can focus it
+    // when the game is paused.
+    private AnimatedButton _resumeButton;
+
+    // The UI sound effect to play when a UI event is triggered.
+    private SoundEffect _uiSoundEffect;
+
+    // Reference to the texture atlas that we can pass to UI elements when the
+    // are created.
+    private TextureAtlas _atlas;
+
     public override void Initialize()
     {
         base.Initialize();
@@ -88,20 +111,22 @@ public class GameScene : Scene
         // Set the origin of the text so it is left-centered.
         float scoreTextYOrigin = _font.MeasureString("Score").Y * 0.5f;
         _scoreTextOrigin = new Vector2(0, scoreTextYOrigin);
+
+        InitializeUI();
     }
 
     public override void LoadContent()
     {
         // Create the texture atlas from the XML configuration file
-        TextureAtlas atlas = TextureAtlas.FromFile(Core.Content, "images\\atlas-definition.xml");
+        _atlas = TextureAtlas.FromFile(Core.Content, "images\\atlas-definition.xml");
 
         // Create the slime animated sprite from the atlas.
-        _slime = atlas.CreateAnimatedSprite("slime-animation");
+        _slime = _atlas.CreateAnimatedSprite("slime-animation");
         _slime.Scale = new Vector2(4.0f, 4.0f);
         _slime.Color = Color.Orange;
 
         // Create the bat region from the atlas.
-        _bat = atlas.CreateAnimatedSprite("bat-animation");
+        _bat = _atlas.CreateAnimatedSprite("bat-animation");
         _bat.Scale = new Vector2(4.0f, 4.0f);
 
         // Create the tileMap from the XML configuration file.
@@ -115,10 +140,20 @@ public class GameScene : Scene
         // Load the font
         _font = Core.Content.Load<SpriteFont>("fonts/04B_30");
 
+        // Load the sound effect to play when ui actions occur.
+        _uiSoundEffect = Core.Content.Load<SoundEffect>("audio/ui");
     }
 
     public override void Update(GameTime  gameTime)
     {
+
+        // Ensure the UI is always updated:
+        GumService.Default.Update(gameTime);
+
+        //If the game is paused, do  not continue.
+        if (_pausePanel.IsVisible)
+            return;
+
         //update the slime animated sprite:
         _slime.Update(gameTime);
 
@@ -222,6 +257,131 @@ public class GameScene : Scene
 
     }
 
+    public override void Draw(GameTime gameTime)
+    {
+        // Clear the back buffer.
+        Core.GraphicsDevice.Clear(Color.CornflowerBlue);
+
+        // Begin the sprite batch to prepare for rendering.
+        Core.SpriteBatch.Begin(samplerState: SamplerState.PointClamp);
+
+        // Draw the tilemap.
+        _tilemap.Draw(Core.SpriteBatch);
+
+        // Draw the slime texture region at a scale of 4.0
+        _slime.Draw(Core.SpriteBatch, _slimePosition);
+
+        // Draw the bat texture region 10px to the right of the slime at a scale of 4.0
+        _bat.Draw(Core.SpriteBatch, _batPosition);
+
+        // Draw the score
+        Core.SpriteBatch.DrawString(
+                _font,
+                $"Score: {_score}",
+                _scoreTextPosition,
+                Color.White,
+                0.0f,
+                _scoreTextOrigin,
+                1.0f,
+                SpriteEffects.None,
+                0.0f
+                );
+
+        // Always end the sprite batch when finished.
+        Core.SpriteBatch.End();
+
+        // Draw the Gum UI
+        GumService.Default.Draw();
+    }
+
+    //----------------------
+    // Gum Screen Code
+    //----------------------
+
+    //Gum Pause Screen Code:
+    private void CreatePausePanel()
+    {
+        _pausePanel = new Panel();
+        _pausePanel.Anchor(Anchor.Center);
+        _pausePanel.WidthUnits = DimensionUnitType.Absolute;
+        _pausePanel.HeightUnits = DimensionUnitType.Absolute;
+        _pausePanel.Height = 70;
+        _pausePanel.Width = 264;
+        _pausePanel.IsVisible = false;
+        _pausePanel.AddToRoot();
+
+        TextureRegion backgroundRegion = _atlas.GetRegion("panel-background");
+
+        NineSliceRuntime background = new NineSliceRuntime();
+        background.Dock(Dock.Fill);
+        background.Texture = backgroundRegion.Texture;
+        background.TextureAddress = TextureAddress.Custom;
+        background.TextureHeight = backgroundRegion.Height;
+        background.TextureLeft = backgroundRegion.SourceRectangle.Left;
+        background.TextureTop = backgroundRegion.SourceRectangle.Top;
+        background.TextureWidth = backgroundRegion.Width;
+        _pausePanel.AddChild(background);
+
+        TextRuntime textInstance = new TextRuntime();
+        textInstance.Text = "PAUSED";
+        textInstance.CustomFontFile = @"fonts/04b_30.fnt";
+        textInstance.UseCustomFont = true;
+        textInstance.FontScale = 0.5f;
+        textInstance.X = 10f;
+        textInstance.Y = 10f;
+        _pausePanel.AddChild(textInstance);
+
+        _resumeButton = new AnimatedButton(_atlas);
+        _resumeButton.Text = "RESUME";
+        _resumeButton.Anchor(Anchor.BottomLeft);
+        _resumeButton.X = 9f;
+        _resumeButton.Y = -9f;
+        _resumeButton.Click += HandleResumeButtonClicked;
+        _pausePanel.AddChild(_resumeButton);
+
+        AnimatedButton quitButton = new AnimatedButton(_atlas);
+        quitButton.Text = "QUIT";
+        quitButton.Anchor(Anchor.BottomRight);
+        quitButton.X = -9f;
+        quitButton.Y = -9f;
+        quitButton.Click += HandleQuitButtonClicked;
+
+        _pausePanel.AddChild(quitButton);
+    }
+
+    private void HandleResumeButtonClicked(object sender, EventArgs e)
+    {
+        // Play a sound when a user interaction occurs
+        Core.Audio.PlaySoundEffect(_uiSoundEffect);
+
+        // Make the pause panel invisible to resume the game.
+        _pausePanel.IsVisible = false;
+    }
+
+    private void HandleQuitButtonClicked(object sender, EventArgs e)
+    {
+        // Play a sound when a user interaction occurs
+        Core.Audio.PlaySoundEffect(_uiSoundEffect);
+
+        // Go back to the title scene.
+        Core.ChangeScene(new TitleScene());
+    }
+
+    private void InitializeUI()
+    {
+        GumService.Default.Root.Children.Clear();
+
+        CreatePausePanel();
+    }
+
+    //----------------------
+    // Other class methods
+    //----------------------
+
+    private Vector2 Middle() {
+        return new Vector2(_roomBounds.Width/2, _roomBounds.Height/2);
+    }
+
     private void AssignRandomBatVelocity()
     {
         // Generate a random angle.
@@ -234,11 +394,28 @@ public class GameScene : Scene
         _batVelocity = direction * MOVEMENT_SPEED;
     }
 
+    private void PauseGame()
+    {
+        // Make the pause panel UI element visable.
+        _pausePanel.IsVisible = true;
+
+        // Set the resume button to have focus
+        _resumeButton.IsFocused = true;
+    }
+
+    //----------------------
+    //Input Checks
+    //----------------------
+
     private void CheckKeyboardInput()
     {
-        //If the escape key is pressed, return to the title screen.
+
+        //If the escape key is pressed, pause the game.
         if (Core.Input.Keyboard.WasKeyJustPressed(Keys.Escape))
-            Core.ChangeScene(new TitleScene());
+        {
+            PauseGame();
+            return;
+        }
 
         // If the space key is held down, the movement speed increases by 1.5.
         float speed = MOVEMENT_SPEED;
@@ -275,93 +452,64 @@ public class GameScene : Scene
 
     }
 
-    private Vector2 Middle() {
-        return new Vector2(_roomBounds.Width/2, _roomBounds.Height/2);
-    }
-
     private void CheckGamePadInput()
     {
             GamePadInfo gamePadOne = Core.Input.GamePads[(int)PlayerIndex.One];
 
-                float speed = MOVEMENT_SPEED;
-                if (gamePadOne.IsButtonDown(Buttons.A))
-                {
-                   speed *= 1.5f;
-                   gamePadOne.SetVibration(1.0f, TimeSpan.FromSeconds(1));
-                }
-                else
-                {
-                    gamePadOne.StopVibration();
-                }
+            //If the state button is pressed, pause the game.
+            if (gamePadOne.WasButtonJustPressed(Buttons.Start))
+            {
+                PauseGame();
+                return;
+            }
 
-                // The Alex test state:
-                // Move to top left
-                if (gamePadOne.LeftTrigger == 1.0f)
-                    _slimePosition = Vector2.Zero;
-                // Move to bottom right
-                else if (gamePadOne.RightTrigger == 1.0f)
-                    _slimePosition = Middle() * 2 - new Vector2(_slime.Width, _slime.Height);
-                // Move to bottom left
-                else if (gamePadOne.IsButtonDown(Buttons.LeftShoulder))
-                    _slimePosition = new Vector2( 0, Middle().Y) * 2 - new Vector2(0.0f, _slime.Height);
-                // Move to top right
-                else if (gamePadOne.IsButtonDown(Buttons.RightShoulder))
-                    _slimePosition = new Vector2(Middle().X, 0) * 2 - new Vector2(_slime.Width, 0);
 
-                // check thumbstick first since it has priority over which gamepad input is movement.
-                if (gamePadOne.LeftThumbstick != Vector2.Zero)
-                {
-                    _slimePosition.X += gamePadOne.LeftThumbstick.X * speed;
-                    _slimePosition.Y -= gamePadOne.LeftThumbstick.Y * speed;
-                }
-                else
-                {
-                    //if Dpadup is down, move the slime up the screen.
-                    if (gamePadOne.IsButtonDown(Buttons.DPadUp))
-                        _slimePosition.Y -= speed;
+            float speed = MOVEMENT_SPEED;
+            if (gamePadOne.IsButtonDown(Buttons.A))
+            {
+               speed *= 1.5f;
+               gamePadOne.SetVibration(1.0f, TimeSpan.FromSeconds(1));
+            }
+            else
+            {
+                gamePadOne.StopVibration();
+            }
 
-                    if (gamePadOne.IsButtonDown(Buttons.DPadDown))
-                        _slimePosition.Y += speed;
+            // The Alex test state:
+            // Move to top left
+            if (gamePadOne.LeftTrigger == 1.0f)
+                _slimePosition = Vector2.Zero;
+            // Move to bottom right
+            else if (gamePadOne.RightTrigger == 1.0f)
+                _slimePosition = Middle() * 2 - new Vector2(_slime.Width, _slime.Height);
+            // Move to bottom left
+            else if (gamePadOne.IsButtonDown(Buttons.LeftShoulder))
+                _slimePosition = new Vector2( 0, Middle().Y) * 2 - new Vector2(0.0f, _slime.Height);
+            // Move to top right
+            else if (gamePadOne.IsButtonDown(Buttons.RightShoulder))
+                _slimePosition = new Vector2(Middle().X, 0) * 2 - new Vector2(_slime.Width, 0);
 
-                    if (gamePadOne.IsButtonDown(Buttons.DPadLeft))
-                        _slimePosition.X -= speed;
+            // check thumbstick first since it has priority over which gamepad input is movement.
+            if (gamePadOne.LeftThumbstick != Vector2.Zero)
+            {
+                _slimePosition.X += gamePadOne.LeftThumbstick.X * speed;
+                _slimePosition.Y -= gamePadOne.LeftThumbstick.Y * speed;
+            }
+            else
+            {
+                //if Dpadup is down, move the slime up the screen.
+                if (gamePadOne.IsButtonDown(Buttons.DPadUp))
+                    _slimePosition.Y -= speed;
 
-                    if (gamePadOne.IsButtonDown(Buttons.DPadRight))
-                        _slimePosition.X += speed;
-                }
+                if (gamePadOne.IsButtonDown(Buttons.DPadDown))
+                    _slimePosition.Y += speed;
+
+                if (gamePadOne.IsButtonDown(Buttons.DPadLeft))
+                    _slimePosition.X -= speed;
+
+                if (gamePadOne.IsButtonDown(Buttons.DPadRight))
+                    _slimePosition.X += speed;
+            }
     }
 
-    public override void Draw(GameTime gameTime)
-    {
-        // Clear the back buffer.
-        Core.GraphicsDevice.Clear(Color.CornflowerBlue);
-
-        // Begin the sprite batch to prepare for rendering.
-        Core.SpriteBatch.Begin(samplerState: SamplerState.PointClamp);
-
-        // Draw the tilemap.
-        _tilemap.Draw(Core.SpriteBatch);
-
-        // Draw the slime texture region at a scale of 4.0
-        _slime.Draw(Core.SpriteBatch, _slimePosition);
-
-        // Draw the bat texture region 10px to the right of the slime at a scale of 4.0
-        _bat.Draw(Core.SpriteBatch, _batPosition);
-
-        // Draw the score
-        Core.SpriteBatch.DrawString(
-                _font,
-                $"Score: {_score}",
-                _scoreTextPosition,
-                Color.White,
-                0.0f,
-                _scoreTextOrigin,
-                1.0f,
-                SpriteEffects.None,
-                0.0f
-                );
-
-        // Always end the sprite batch when finished.
-        Core.SpriteBatch.End(); 
-    }
 }
