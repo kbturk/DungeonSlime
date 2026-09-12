@@ -38,6 +38,9 @@ public class GameScene : Scene
 
     private GameState _state;
 
+    // TODO: evaluate putting this in the GameSceneUI
+    private ScoreManager _scoreManager;
+
     public override void Initialize()
     {
         //LoadContent is called during base.Initialize()
@@ -67,6 +70,7 @@ public class GameScene : Scene
 
         // Initialize a new game to be played.
         InitializeNewGame();
+
     }
 
     private void InitializeUI()
@@ -155,6 +159,9 @@ public class GameScene : Scene
 
         // Load the collect sound effect.
         _collectSoundEffect = Content.Load<SoundEffect>("audio/collect");
+
+        _scoreManager = new ScoreManager();
+        _scoreManager.LoadContent();
     }
 
     public override void Update(GameTime gameTime)
@@ -364,6 +371,11 @@ public class GameScene : Scene
 
         // Set the game state to game over.
         _state = GameState.GameOver;
+
+        // Save scores:
+        _scoreManager.AddNewScore("MOM", _score);
+        _scoreManager.SaveScores();
+
     }
 
     public override void Draw(GameTime gameTime)

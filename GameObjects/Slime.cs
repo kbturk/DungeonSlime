@@ -139,12 +139,12 @@ public class Slime
         // Capture the value of the head segment
         SlimeSegment head = _segments[0];
 
-        // Update the head's "at position to be where it was moving "to"
-        head.At = head.To;
-
         // Update the direction the head is supposed to move in the 
         // next direction cached.
         head.Direction = _nextDirection;
+
+        // Update the head's "at position to be where it was moving "to"
+        head.At = head.To;
 
         // Update the head's "to" position to the next tile in the direction
         // it is moving.
@@ -167,9 +167,12 @@ public class Slime
             if (head.At == segment.At)
             {
                 if(BodyCollision != null)
+                {
                     BodyCollision.Invoke(this, EventArgs.Empty);
+                }
+
+                return;
             }
-            return;
         }
 
     }
