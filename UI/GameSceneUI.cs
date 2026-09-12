@@ -13,7 +13,7 @@ using MonogameLibrary.Graphics;
 namespace DungeonSlime.UI;
 
 //ContainerRunTime is a Gum class, not native monogame
-public class GameSceneUI : ContainerRunTime
+public class GameSceneUI : ContainerRuntime
 {
     // The string format to use when updating the text for score display.
     private static readonly string s_scoreFormat = "SCORE: {0:D6}";
@@ -82,7 +82,7 @@ public class GameSceneUI : ContainerRunTime
         // Create the Game Over panel that is displayed when a game over occurs.
         // and add it as a child to this container.
         _pausePanel = CreatePausePanel(atlas);
-        AddChild(_gameOverPanel.Visual);
+        AddChild(_pausePanel.Visual);
 
         // Create the Game Over panel that is displayed when a game over occurs.
         // and add it as a child to this container.
@@ -139,7 +139,7 @@ public class GameSceneUI : ContainerRunTime
 
         _resumeButton = new AnimatedButton(atlas);
         _resumeButton.Text = "RESUME";
-        _resumeButton.Anchor(Gum.Wireframe.Anchor.ButtonLeft);
+        _resumeButton.Anchor(Gum.Wireframe.Anchor.BottomLeft);
         _resumeButton.X = 9.0f;
         _resumeButton.Y = -9.0f;
 
@@ -150,7 +150,7 @@ public class GameSceneUI : ContainerRunTime
 
         AnimatedButton quitButton = new AnimatedButton(atlas);
         quitButton.Text = "QUIT";
-        quitButton.Anchor(Gum.Wireframe.Anchor.ButtonRight);
+        quitButton.Anchor(Gum.Wireframe.Anchor.BottomRight);
         quitButton.X = -9.0f;
         quitButton.Y = -9.0f;
 
@@ -196,7 +196,7 @@ public class GameSceneUI : ContainerRunTime
 
         _retryButton = new AnimatedButton(atlas);
         _retryButton.Text = "RETRY";
-        _retryButton.Anchor(Gum.Wireframe.Anchor.ButtonLeft);
+        _retryButton.Anchor(Gum.Wireframe.Anchor.BottomLeft);
         _retryButton.X = 9.0f;
         _retryButton.Y = -9.0f;
 
@@ -207,7 +207,7 @@ public class GameSceneUI : ContainerRunTime
 
         AnimatedButton quitButton = new AnimatedButton(atlas);
         quitButton.Text = "QUIT";
-        quitButton.Anchor(Gum.Wireframe.Anchor.ButtonRight);
+        quitButton.Anchor(Gum.Wireframe.Anchor.BottomRight);
         quitButton.X = -9.0f;
         quitButton.Y = -9.0f;
 
@@ -252,7 +252,7 @@ public class GameSceneUI : ContainerRunTime
 
         // Both panels have a quit button, so hide both.
         HideGameOverPanel();
-        HidePauseOverPanel();
+        HidePausePanel();
 
         // Invoke the QuitButtonClick event
         if(QuitButtonClick != null)

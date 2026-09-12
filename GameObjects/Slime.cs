@@ -2,6 +2,7 @@
 //The head is a single segment, the tail is a list of many segments.
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using MonogameLibrary;
 using MonogameLibrary.Graphics;
@@ -30,6 +31,12 @@ public class Slime
 
     // The AnimatedSprite used when drawing each slime segment.
     private AnimatedSprite _sprite;
+
+    // Buffer to queue inputs input by player during input polling.
+    private Queue<Vector2> _inputBuffer;
+
+    // The maximum size of the buffer queue.
+    private const int MAX_BUFFER_SIZE = 2;
 
     ///<summary>
     ///Event that is raised if it is detected that the head segment
@@ -75,11 +82,14 @@ public class Slime
 
         // Zero out the movement timer.
         _movementTimer = TimeSpan.Zero;
+
+        // Initialize the input buffer.
+        _inputBuffer = new Queue<Vector2>(MAX_BUFFER_SIZE);
     }
 
     private void HandleInput()
     {
-        Vector2 potentialNextDirection = _nextDirection;
+        Vector2 potentialNextDirection = Vector2.Zero;
 
         //Personal TODO: adjust the input handling to
         //match previous tutorials to handle pressing
@@ -98,16 +108,34 @@ public class Slime
         else if (GameController.MoveRight())
             potentialNextDirection = Vector2.UnitX;
 
-        // Only allow direction change if it is not reversing the current
-        // direction. This prevents the slime from backing into itself.
-        // Pretty cool use of Vector2.Dot product
-        float dot = Vector2.Dot(potentialNextDirection, _segments[0].Direction);
-        if (dot >= 0)
-            _nextDirection = potentialNextDirection;
+        // if a new direction was input, consider adding
+        // it to the buffer.
+        if (potentialNextDirection != Vector2.Zero && _inputBuffer.Count < MAX_BUFFER_SIZE)
+        {
+            // if the buffer is not empty, validate against the
+            // last buffered direction. Otherwise, validate
+            // against current direction.
+            Vector2 validateAgainst = _inputBuffer.Count > 0 ?
+                _inputBuffer.Last() :
+                _segments[0].Direction;
+
+            // Only allow direction change if it is not reversing the current
+            // direction. This prevents the slime from backing into itself.
+            // Pretty cool use of Vector2.Dot product
+            float dot = Vector2.Dot(potentialNextDirection, validateAgainst);
+            if (dot >= 0)
+                _inputBuffer.Enqueue(potentialNextDirection);
+        }
     }
 
     private void Move()
     {
+        // Get the next direction from the input buffer if one is available.
+        if (_inputBuffer.Count > 0)
+        {
+            _nextDirection = _inputBuffer.Dequeue();
+        }
+
         // Capture the value of the head segment
         SlimeSegment head = _segments[0];
 
@@ -153,7 +181,7 @@ public class Slime
     {
         // Capture the value of the tail segment
         SlimeSegment tail = _segments[_segments.Count - 1];
-        
+
         // Create a new tail segment that is positioned a gred sell in the
         // reverse direction from the tail moving to the tail.
         SlimeSegment newTail = new SlimeSegment();
