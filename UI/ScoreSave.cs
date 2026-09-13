@@ -101,7 +101,8 @@ public class ScoreManager
     {
         playerScores.list.Add(new HighScoreEntry {name = entryName, score = entryScore});
         playerScores.list.Sort((HighScoreEntry x, HighScoreEntry y) => y.score.CompareTo(x.score));
-        playerScores.list = playerScores.list.GetRange(0,5);
+        if (playerScores.list.Count > 5)
+            playerScores.list = playerScores.list.GetRange(0,5);
     }
 
     ///<summary>
