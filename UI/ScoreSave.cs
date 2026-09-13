@@ -67,12 +67,10 @@ public class ScoreManager
     public void LoadContent()
     {
         path = Directory.GetCurrentDirectory();
-        Console.WriteLine(path);
         //create a directory if the high score directory doesn't exist.
         if (!Directory.Exists(path + "/HighScores/"))
         {
             Directory.CreateDirectory(path + "/HighScores/");
-            Console.WriteLine("Made Directory!");
         }
 
         if (File.Exists(path +"/HighScores/highscores.xml"))
@@ -103,6 +101,7 @@ public class ScoreManager
     {
         playerScores.list.Add(new HighScoreEntry {name = entryName, score = entryScore});
         playerScores.list.Sort((HighScoreEntry x, HighScoreEntry y) => y.score.CompareTo(x.score));
+        playerScores.list = playerScores.list.GetRange(0,5);
     }
 
     ///<summary>
