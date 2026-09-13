@@ -38,7 +38,6 @@ public class GameScene : Scene
 
     private GameState _state;
 
-    // TODO: evaluate putting this in the GameSceneUI
     private ScoreManager _scoreManager;
 
     public override void Initialize()

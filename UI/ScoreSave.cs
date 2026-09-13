@@ -50,7 +50,6 @@ public class ScoreManager
     ///</summary>
     private string path;
 
-
     ///<summary>
     ///the scoremanager class
     ///</summary>

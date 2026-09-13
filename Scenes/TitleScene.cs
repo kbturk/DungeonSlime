@@ -17,7 +17,6 @@ public class TitleScene : Scene
 {
     private const string DUNGEON_TEXT = "Dungeon";
     private const string SLIME_TEXT = "Slime";
-    private const string PRESS_ENTER_TEXT = "Press Enter To Start";
 
     // normal text font
     private SpriteFont _font;
@@ -50,11 +49,16 @@ public class TitleScene : Scene
     // The speed that the background pattern scrolls.
     private float _scrollSpeed = 50.0f;
 
+    //ScoreManager so we can have highscores on title scene.
+    //TODO: factor this out into the scenes or even Core/Game Library.
+    private ScoreManager _scoreManager;
+
     //Gum UI variables
     private SoundEffect _uiSoundEffect;
     private Panel _titleScreenButtonsPanel;
     private Panel _optionsPanel;
     private AnimatedButton _optionsButton;
+    private AnimatedButton _quitButton;
     private AnimatedButton _optionsBackButton;
     private AnimatedButton startButton;
     private TextureAtlas _atlas;
@@ -114,6 +118,9 @@ public class TitleScene : Scene
 
         // Load the texture atlas from the xml configureation file.
         _atlas = TextureAtlas.FromFile(Core.Content, "images/atlas-definition.xml");
+
+        _scoreManager = new ScoreManager();
+        _scoreManager.LoadContent();
     }
 
     public override void Update(GameTime gameTime)
@@ -196,6 +203,33 @@ public class TitleScene : Scene
                 SpriteEffects.None,
                 1.0f);
 
+        //High Scores
+        Core.SpriteBatch.DrawString(_font,
+                    "Name           Score",
+                    new Vector2(740, 400),
+                    Color.White,
+                    0.0f,
+                    _slimeTextOrigin,
+                    1.0f,
+                    SpriteEffects.None,
+                    1.0f);
+
+        //TODO: add high scores
+        for (int i=0; i < _scoreManager.playerScores.list.Count; i++)
+        {
+            var _item = _scoreManager.playerScores.list[i];
+
+            Core.SpriteBatch.DrawString(_font,
+                    _item.name + "           " + _item.score.ToString(),
+                    new Vector2(740, 430 + 35 * i),
+                    Color.White,
+                    0.0f,
+                    _slimeTextOrigin,
+                    1.0f,
+                    SpriteEffects.None,
+                    1.0f);
+        }
+
         //Always end the sprite batch when finished.
         Core.SpriteBatch.End();
         }
@@ -216,22 +250,33 @@ public class TitleScene : Scene
 
         startButton = new AnimatedButton(_atlas);
         startButton.Anchor(Gum.Wireframe.Anchor.BottomLeft);
-        startButton.X = 50;
+        startButton.X = 30;
         startButton.Y = -12;
-        startButton.Width = 70;
+        startButton.Width = 50;
         startButton.Text = "Start";
         startButton.Click += HandleStartClicked;
         _titleScreenButtonsPanel.AddChild(startButton);
 
         _optionsButton = new AnimatedButton(_atlas);
         _optionsButton.Anchor(Gum.Wireframe.Anchor.BottomRight);
-        _optionsButton.X = -50;
+        _optionsButton.X = -100;
         _optionsButton.Y = -12;
-        _optionsButton.Width = 70;
+        _optionsButton.Width = 50;
         _optionsButton.Text = "Options";
         _optionsButton.Click += HandleOptionsClicked;
         _titleScreenButtonsPanel.AddChild(_optionsButton);
 
+        _quitButton = new AnimatedButton(_atlas);
+        _quitButton.Anchor(Gum.Wireframe.Anchor.BottomRight);
+        _quitButton.X = -20;
+        _quitButton.Y = -12;
+        _quitButton.Width = 50;
+        _quitButton.Text = "Quit";
+        _quitButton.Click += HandleQuitClicked;
+        _titleScreenButtonsPanel.AddChild(_quitButton);
+
+
+        
         startButton.IsFocused = true;
     }
 
@@ -312,6 +357,15 @@ public class TitleScene : Scene
 
         // Give the back button on the options panel focus.
         _optionsBackButton.IsFocused = true;
+    }
+
+    private void HandleQuitClicked(object sender, EventArgs e)
+    {
+        // A UI interaction occurred, play the sound effect
+        Core.Audio.PlaySoundEffect(_uiSoundEffect);
+
+        // End the game.
+        s_instance.Exit();
     }
 
     private void HandleSfxSliderChanged(object sender, EventArgs args)

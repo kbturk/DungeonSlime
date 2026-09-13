@@ -3,3 +3,6 @@ bin/*
 obj/*
 Content/bin/DesktopGL/*
 Content/obj/DesktopGL/*
+/HighScores/*
+SlimeLogo.png
+SlimeLogo.xcf
