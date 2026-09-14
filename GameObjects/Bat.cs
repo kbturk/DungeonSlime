@@ -6,6 +6,9 @@ using MonogameLibrary.Graphics;
 
 namespace DungeonSlime.GameObjects;
 
+///<summary>
+///The flying bat!
+///</summary>
 public class Bat
 {
     private const float MOVEMENT_SPEED = 5.0f;

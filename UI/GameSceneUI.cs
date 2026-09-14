@@ -12,7 +12,10 @@ using MonogameLibrary.Graphics;
 
 namespace DungeonSlime.UI;
 
-//ContainerRunTime is a Gum class, not native monogame
+///<summary>
+///GameSceneUI inherits from ContainerRunTime is a Gum class, not native monogame
+///This holds all the user interface parts of the game except for user score (atm)
+///</summary>
 public class GameSceneUI : ContainerRuntime
 {
     // The string format to use when updating the text for score display.
@@ -56,6 +59,9 @@ public class GameSceneUI : ContainerRuntime
     /// </summary>
     public event EventHandler RetryButtonClick;
 
+    ///<summary>
+    ///This holds all the user interface parts of the game except for user score (atm)
+    ///</summary>
     public GameSceneUI()
     {
         // the game scene UI inherits from ContainerRuntime, so we set its

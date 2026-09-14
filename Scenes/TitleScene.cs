@@ -13,6 +13,9 @@ using MonogameLibrary.Scenes;
 
 namespace DungeonSlime.Scenes;
 
+///<summary>
+///The title scene - options, game start, and exit are here.
+///</summary>
 public class TitleScene : Scene
 {
     private const string DUNGEON_TEXT = "Dungeon";
@@ -73,6 +76,9 @@ public class TitleScene : Scene
         CreateOptionsPanel();
     }
 
+    ///<summary>
+    ///The initialize step of game loop.
+    ///</summary>
     public override void Initialize()
     {
         //LoadContent is called during base.Initialize()
@@ -102,6 +108,9 @@ public class TitleScene : Scene
         InitializeUI();
     }
 
+    ///<summary>
+    ///The loadcontent step of game loop.
+    ///</summary>
     public override void LoadContent()
     {
         // Load the font for the standard text
@@ -123,6 +132,9 @@ public class TitleScene : Scene
         _scoreManager.LoadContent();
     }
 
+    ///<summary>
+    ///The update step of game loop.
+    ///</summary>
     public override void Update(GameTime gameTime)
     {
         // Update the offsets for the background pattern wrapping so that it
@@ -139,6 +151,9 @@ public class TitleScene : Scene
         GumService.Default.Update(gameTime);
     }
 
+    ///<summary>
+    ///The draw step of game loop.
+    ///</summary>
     public override void Draw(GameTime gameTime)
     {
         Core.GraphicsDevice.Clear(new Color(32, 40, 78, 255));
@@ -271,7 +286,7 @@ public class TitleScene : Scene
         _quitButton.X = -20;
         _quitButton.Y = -12;
         _quitButton.Width = 50;
-        _quitButton.Text = "Quit";
+        _quitButton.Text = "Exit";
         _quitButton.Click += HandleQuitClicked;
         _titleScreenButtonsPanel.AddChild(_quitButton);
 

@@ -7,16 +7,25 @@ using MonogameLibrary;
 
 namespace DungeonSlime;
 
+///<summary>
+///The Core or 'root' of the game.
+///</summary>
 public class GameRoot : Core
 {
     // the background theme song
     private Song _themeSong;
 
+    ///<summary>
+    /// Root of the game. We create a core/game object with a size.
+    ///</summary>
     public GameRoot() : base("Dungeon Slime", 1280, 720, false)
     {
 
     }
 
+    ///<summary>
+    /// Initialize step of game loop
+    ///</summary>
     protected override void Initialize()
     {
 
@@ -32,6 +41,9 @@ public class GameRoot : Core
         ChangeScene(new TitleScene());
     }
 
+    ///<summary>
+    /// LoadContent step of game loop.
+    ///</summary>
     protected override void LoadContent()
     {
         // load the background music
@@ -50,7 +62,8 @@ public class GameRoot : Core
 
     }
 
-    // Boilerplate.
+
+    // Boilerplate Gum initialization code.
     private void InitializeGum()
     {
         // Initialize the Gum service. The second parameter specifies

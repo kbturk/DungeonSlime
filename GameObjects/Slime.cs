@@ -9,6 +9,9 @@ using MonogameLibrary.Graphics;
 
 namespace DungeonSlime.GameObjects;
 
+///<summary>
+///The slime! It's a head with a 0-n length tail.
+///</summary>
 public class Slime
 {
     // A constant value that represents the amount of time to wait between movement updates.

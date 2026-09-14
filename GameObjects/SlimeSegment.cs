@@ -2,6 +2,9 @@ using Microsoft.Xna.Framework;
 
 namespace DungeonSlime.GameObjects;
 
+///<summary>
+///A simple helpful struct managing the slime segments
+///</summary>
 public struct SlimeSegment
 {
     ///<summary>

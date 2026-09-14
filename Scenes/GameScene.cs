@@ -11,6 +11,9 @@ using MonogameLibrary.Scenes;
 
 namespace DungeonSlime.Scenes;
 
+///<summary>
+///The main game scene - the game mechanics happen here.
+///</summary>
 public class GameScene : Scene
 {
     private enum GameState
@@ -40,6 +43,9 @@ public class GameScene : Scene
 
     private ScoreManager _scoreManager;
 
+    ///<summary>
+    ///Initialization part of game loop.
+    ///</summary>
     public override void Initialize()
     {
         //LoadContent is called during base.Initialize()
@@ -129,6 +135,9 @@ public class GameScene : Scene
         _state = GameState.Playing;
     }
 
+    ///<summary>
+    ///The loadcontent part of the game loop
+    ///</summary>
     public override void LoadContent()
     {
         // Create the texture atlas from the XML
@@ -163,6 +172,9 @@ public class GameScene : Scene
         _scoreManager.LoadContent();
     }
 
+    ///<summary>
+    ///The update part of the game loop
+    ///</summary>
     public override void Update(GameTime gameTime)
     {
         // Ensure the UI is always updated.
@@ -377,6 +389,9 @@ public class GameScene : Scene
 
     }
 
+    ///<summary>
+    ///The draw part of the game loop
+    ///</summary>
     public override void Draw(GameTime gameTime)
     {
         // Clear the back buffer.

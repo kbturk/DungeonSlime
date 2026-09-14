@@ -10,18 +10,18 @@
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationManifest>app.manifest</ApplicationManifest>
-    <ApplicationIcon>SlimeLogo.ico</ApplicationIcon>
+    <ApplicationIcon>Icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <None Remove="SlimeLogo.ico" />
-    <None Remove="SlimeLogo.bmp" />
+    <None Remove="Icon.ico" />
+    <None Remove="Icon.bmp" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="SlimeLogo.ico">
-      <LogicalName>SlimeLogo.ico</LogicalName>
+    <EmbeddedResource Include="Icon.ico">
+      <LogicalName>Icon.ico</LogicalName>
     </EmbeddedResource>
-    <EmbeddedResource Include="SlimeLogo.bmp">
-      <LogicalName>SlimeLogo.bmp</LogicalName>
+    <EmbeddedResource Include="Icon.bmp">
+      <LogicalName>Icon.bmp</LogicalName>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
